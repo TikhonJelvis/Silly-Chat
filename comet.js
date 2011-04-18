@@ -4,7 +4,7 @@
 var http = require("http");
 
 // Active connections:
-var connection = [];
+var connections = [];
 
 function update() {
     if (connections.length) {
@@ -28,6 +28,6 @@ http.createServer(function (request, response) {
         response.writeHeader(404, {"Content-type" : "text/plain"});
         response.end("Not found!");
     }
-}).listen("8125");
+}).listen(8124, "127.0.0.1");
 
-console.log("Running comet server on 127.0.0.1:8125");
+console.log("Running comet server on 127.0.0.1:8124");
