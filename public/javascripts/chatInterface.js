@@ -12,7 +12,7 @@ function ChatInterface(url, username) {
     input.submit(send);
     button.click(send);
 
-    contols.append(input).append(button);
+    controls.append(input).append(button);
 
     element.append(controls);
     element.append(messages);
@@ -52,6 +52,6 @@ function ChatInterface(url, username) {
 }
 
 $(function () {
-    var chat = new ChatInterface("chat", "Bob");
+    var chat = new ChatInterface("chat", {username : "Bob"});
     $("body").append(chat.getElement());
 });
