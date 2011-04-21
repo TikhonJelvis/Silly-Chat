@@ -59,12 +59,9 @@ function ChatInterface(url, options) {
 
         messageDiv.append(usernameDiv).append(contentDiv);
 
-        messageDiv.hide();
         messages.append(messageDiv);
-        messageDiv.fadeIn();
-
+        window.scrollBy(0, 10000);
         input.focus();
-        window.scrollBy(0, 1000000000000);
     }
 }
 
@@ -88,6 +85,6 @@ $(function () {
         $("body").empty();
         chat = new ChatInterface("chat", {username : username});
         $("body").append(chat.getElement());
-        window.scrollBy(0, 10000000);
+        //window.scrollBy(0, 10000000);
     }
 });
