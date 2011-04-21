@@ -1,20 +1,30 @@
-function ChatInterface(url, username) {
+function ChatInterface(url, options) {
     // Connection:
-    var connection = new ChatConnection(url, username);
+    var connection = new ChatConnection(url, options);
     
     // Elements:
     var element = $("<div>").addClass("chat"),
         controls = $("<div>").addClass("controls"),
-        input = $("<input>").attr("type", "text"),
-        button = $("<button>").html("Go"),
-        messages = $("<div>");
+        holder = $("<div>").addClass("holder"),
+        input = $("<input>").attr("type", "text").addClass("main"),
+        statusBar = $("<div>").addClass("statusBar"),
+        messages = $("<div>").addClass("messages");
+
+    $("body").keypress(function (event) {
+        if (event.keyCode == 13) {
+            send();
+        }
+    });
 
     input.submit(send);
-    button.click(send);
+    controls.append(input);
 
-    controls.append(input).append(button);
+    statusBar.append("Username: " + options.username);
 
-    element.append(controls);
+    holder.append(statusBar);
+    holder.append(controls);
+
+    element.append(holder);
     element.append(messages);
 
     connection.observe(function (event) {
@@ -25,9 +35,16 @@ function ChatInterface(url, username) {
         }
     });
 
+    /* Returns the chat interface's main element. */
+    this.getElement = function () {
+        return element;
+    };
+
     /* Sends the message currently entered, clearing the input. */
     function send() {
-        connection.sendMessage(input.val());
+        if (input.val()) {
+            connection.sendMessage(input.val());
+        }
         input.val("");
     }
 
@@ -42,16 +59,35 @@ function ChatInterface(url, username) {
 
         messageDiv.append(usernameDiv).append(contentDiv);
 
+        messageDiv.hide();
         messages.append(messageDiv);
-    }
+        messageDiv.fadeIn();
 
-    /* Returns the parent div of the chat interface. */
-    this.getElement = function () {
-        return element;
-    };
+        input.focus();
+        window.scrollBy(0, 1000000000000);
+    }
 }
 
 $(function () {
-    var chat = new ChatInterface("chat", {username : "Bob"});
-    $("body").append(chat.getElement());
+    var prompt = $("#prompt input"),
+        button = $("#go"),
+        chat = null;
+
+    prompt.keypress(function (event) {
+        if (event.keyCode == 13) {
+            startChat();
+        }
+    });
+    
+    button.click(function () {
+        startChat();
+    });
+
+    function startChat() {
+        var username = prompt.val();
+        $("body").empty();
+        chat = new ChatInterface("chat", {username : username});
+        $("body").append(chat.getElement());
+        window.scrollBy(0, 10000000);
+    }
 });

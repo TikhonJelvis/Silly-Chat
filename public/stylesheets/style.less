@@ -1,8 +1,54 @@
+@background : #90A9CB;
+@dark-background : #003399;
+@font-size : 20pt;
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    padding : 0;
+    margin : 0;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color : white;
+    font-size : @font-size;
+    color : black;
 }
 
-a {
-  color: #00B7FF;
+div.chat {
+    height : 100%;
+}
+
+div#prompt {
+    margin : 30px;
+}
+
+div.holder {
+    position : fixed;
+    bottom : 0;
+    width : 100%;
+}
+
+div.controls {
+    background-color : @background;
+    width : 100%;
+}
+
+div.statusBar {
+    width : 100%;
+    color : white;
+    background-color : @dark-background;
+}
+
+div.controls input {
+    color : black;
+    border-width : 0px;
+    width : 100%;
+    background : @background;
+    font-size : @font-size;
+}
+
+div.messages {
+    overflow : hidden;
+    padding-bottom : 120px;
+}
+
+div.message div.username {
+    font-weight : bold;
 }

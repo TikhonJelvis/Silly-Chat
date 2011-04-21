@@ -19,7 +19,6 @@ function ChatConnection(url, options) {
             timeout : 50000,
             success : function (data) {
                 id = data.id;
-                console.log("id", id);
                 pollServer();
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
@@ -31,8 +30,6 @@ function ChatConnection(url, options) {
      * buffer and emptying said buffer.
      */
     function pollServer() {
-        console.log("Polling");
-
         $.ajax({
             type : "GET",
             url : url + "/" + id,
