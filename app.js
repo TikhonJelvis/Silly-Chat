@@ -9,11 +9,12 @@ var app = module.exports = express.createServer();
 
 // Configuration
 
-app.configure(function(){
+app.configure(function () {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -28,9 +29,13 @@ app.configure('production', function(){
 
 // Routes
 
-app.get('/', function(req, res){
+app.get("/public/*", function (req, res) {
+    
+});
+
+app.get('/', function (req, res) {
   res.render('index', {
-    title: 'Express'
+    title: 'Chat Client Proof-of-Concept'
   });
 });
 
