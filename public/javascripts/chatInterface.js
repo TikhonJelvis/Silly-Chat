@@ -27,7 +27,7 @@ function ChatInterface(url, username) {
 
     /* Sends the message currently entered, clearing the input. */
     function send() {
-        connection.sendMessage({message : input.val(), username : username});
+        connection.sendMessage(input.val());
         input.val("");
     }
 

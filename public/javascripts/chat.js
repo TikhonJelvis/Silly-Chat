@@ -5,15 +5,12 @@
 function ChatConnection(url, options) {
     options = options || {};
     var username = options.username || "Anonymous";
-    url = url + "/" + username;
 
     var receivedMessages = [],
-        observers = [];
+        observers = [],
+        id = "";// A unique id assigned by the server.
 
-    /* Polls the server for changes, sending off all messages in the message
-     * buffer and emptying said buffer.
-     */
-    (function pollServer() {
+    (function connect() {
         $.ajax({
             type : "GET",
             url : url,
@@ -21,16 +18,38 @@ function ChatConnection(url, options) {
             cache : false,
             timeout : 50000,
             success : function (data) {
-                if (data) {
-                    data = JSON.parse(data);
-                    addServerMessages(data.messages);
-                    setTimeout(pollServer, 100);
-                }
+                id = data.id;
+                console.log("id", id);
+                pollServer();
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
             }
         });
     })();
+
+    /* Polls the server for changes, sending off all messages in the message
+     * buffer and emptying said buffer.
+     */
+    function pollServer() {
+        console.log("Polling");
+
+        $.ajax({
+            type : "GET",
+            url : url + "/" + id,
+            async : true,
+            cache : false,
+            timeout : 50000,
+            success : function (data) {
+                if (data) {
+                    addServerMessages(data.messages);
+                }
+
+                setTimeout(pollServer, 100);
+            },
+            error : function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
 
     /* Adds the given messages from the server. */
     function addServerMessages(messages) {
@@ -41,11 +60,11 @@ function ChatConnection(url, options) {
 
     /* Sends the given message to the server. */
     this.sendMessage = function (message) {
-        message = JSON.stringify({message : message, username : username});
+        message = {message : message, username : username};
 
         $.ajax({
             type : "POST",
-            url : url,
+            url : url + "/" + id,
             async : true,
             cache : false,
             timeout : 50000,

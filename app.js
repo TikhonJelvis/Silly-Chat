@@ -8,8 +8,9 @@ var express = require('express');
 var app = module.exports = express.createServer();
 
 // Connections and messages:
-var connections = {},
-    messages = [];
+var connections = [],
+    messages = [],
+    nextId = 0;
 
 /* Adds the given message to all of the connection buffers and the main message
  * buffer.
@@ -46,40 +47,46 @@ app.configure('production', function(){
 });
 
 // Routes
-app.get("/chat/:username", function (req, res) {
-    var username = req.parameters.username;
-
-    if (!(username in connections)) {
-        connections[username] = messages;
-    }
-    
-    var connection = connections[username],
-        messages = [];
-
-    for (var i = 0; i < connection.length; i++) {
-        messages.push(connection[i]);
-    }
-
-    connections[username] = [];
-
-    if (messages.length > 0) {
-        res.send(JSON.stringify({messages : messages}));
-    } else {
-        res.send("");
-    }
-});
-
-app.post("/chat/:username", function (req, res) {
-    var username = req.parameters.username,
-        message = JSON.parse(req.body);
-    
-    addMessage(message);
-});
 
 app.get('/', function (req, res) {
     res.render('index', {
         title: 'Chat Client Proof-of-Concept'
     });
+});
+
+app.get("/chat", function (req, res) {
+    res.send({id : nextId});
+    nextId++;
+});
+
+app.get("/chat/:id", function (req, res) {
+    var id = req.params.id;
+
+    if (!(id in connections)) {
+        connections[id] = messages;
+    }
+    
+    var connection = connections[id],
+        messagesToSend = [];
+
+    for (var i = 0; i < connection.length; i++) {
+        messagesToSend.push(connection[i]);
+    }
+
+    connections[id] = [];
+
+    if (messagesToSend.length > 0) {
+        res.send({messages : messagesToSend});
+    } else {
+        res.send("");
+    }
+});
+
+app.post("/chat/:id", function (req, res) {
+    var id = req.params.id,
+        message = req.body;
+    
+    addMessage(message);
 });
 
 // Only listen on $ node app.js
