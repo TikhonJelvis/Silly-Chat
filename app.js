@@ -1,3 +1,6 @@
+// Set these to change which port of which host the server is listening to:
+var PORT = 3000,
+    HOST = "127.0.0.1";
 
 /**
  * Module dependencies.
@@ -92,6 +95,6 @@ app.post("/chat/:id", function (req, res) {
 // Only listen on $ node app.js
 
 if (!module.parent) {
-    app.listen(3000);
+    app.listen(PORT, HOST);
     console.log("Express server listening on port %d", app.address().port);
 }
