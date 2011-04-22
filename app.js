@@ -1,12 +1,13 @@
 // Set these to change which port of which host the server is listening to:
 var PORT = 3000,
-    HOST = "127.0.0.1";
+    HOST = "169.229.100.61";
 
 /**
  * Module dependencies.
  */
 
-var express = require('express');
+var express = require('express'),
+    sanitizer = require('sanitizer');
 
 var app = module.exports = express.createServer();
 
@@ -16,9 +17,11 @@ var connections = [],
     nextId = 0;
 
 /* Adds the given message to all of the connection buffers and the main message
- * buffer.
+ * buffer, removing all unsafe html tags.
  */
 function addMessage(message) {
+    message.message = sanitizer.sanitize(message.message);
+
     for (var connection in connections) {
         if (connections.hasOwnProperty(connection)) {
             connections[connection].push(message);
