@@ -20,6 +20,10 @@ var connections = [],
  * buffer, removing all unsafe html tags.
  */
 function addMessage(message) {
+    message.username = sanitizer.sanitize(message.username);
+    if (/^\s*$/.test(message.username)) {
+        message.username = "Anonymous";
+    }
     message.message = sanitizer.sanitize(message.message);
 
     for (var connection in connections) {
