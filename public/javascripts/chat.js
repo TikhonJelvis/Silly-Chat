@@ -22,6 +22,7 @@ function ChatConnection(url, options) {
                 pollServer();
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
+                error(textStatus, errorThrown);
             }
         });
     })();
@@ -44,6 +45,8 @@ function ChatConnection(url, options) {
                 setTimeout(pollServer, 100);
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
+                error(textStatus, errorThrown);
+                setTimeout(pollServer, 5000);
             }
         });
     }
@@ -52,6 +55,12 @@ function ChatConnection(url, options) {
     function addServerMessages(messages) {
         var event = {messages : messages};
         receivedMessages.concat(messages);
+        fire(event);
+    }
+
+    /* Sends an error message to all observers. */
+    function error(status, message) {
+        var event = {error : true, status : status, message : message};
         fire(event);
     }
 
@@ -67,6 +76,7 @@ function ChatConnection(url, options) {
             timeout : 50000,
             data : message,
             error : function (XMLHttpRequest, textStatus, errorThrown) {
+                error(textStatus, errorThrown);
             }
         });
     };

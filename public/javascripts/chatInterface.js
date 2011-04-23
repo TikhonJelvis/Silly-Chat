@@ -29,10 +29,15 @@ function ChatInterface(url, options) {
     element.append(messages);
 
     connection.observe(function (event) {
-        var messages = event.messages;
-        
-        for (var i = 0; i < messages.length; i++) {
-            addMessage(messages[i].message, messages[i].username);
+        if (event.error) {
+            var errorMessage = event.status + " <br /> " + event.message;
+            errorMessage(errorMessage);
+        } else {
+            var messages = event.messages;
+            
+            for (var i = 0; i < messages.length; i++) {
+                addMessage(messages[i].message, messages[i].username);
+            }
         }
     });
 
