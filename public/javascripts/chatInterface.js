@@ -1,6 +1,7 @@
 function ChatInterface(url, options) {
     // Connection:
-    var connection = new ChatConnection(url, options);
+    var connection = new ChatConnection(url, options),
+        commands = {};// All the valid commands.
     
     // Elements:
     var element = $("<div>").addClass("chat"),
@@ -42,17 +43,54 @@ function ChatInterface(url, options) {
 
     /* Sends the message currently entered, clearing the input. */
     function send() {
-        if (input.val()) {
-            connection.sendMessage(input.val());
+        var message = input.val();
+
+        if (isCommand(message)) {
+            execute(message);
+        } else if (message) {
+            connection.sendMessage(message);
         }
+        
         input.val("");
     }
 
-    /* Adds the given message to the messages div. */
-    function addMessage(text, username) {
+    /* Determines if the given message is a command. Commands start with "/" */
+    function isCommand(message) {
+        return /[\\\/].*/.test(message);
+    }
+
+    /* Executes the given command. If the command is not defined, nothing
+     * happens.
+     */
+    function execute(command) {
+        command = command.replace(/^[\\\/]/, "");
+        var args = command.split(" ");
+        command = args.splice(0, 1)[0];
+        
+        if (!(command in commands)) {
+            errorMessage("Command <span class=\"code\">" + command +
+                         "</span> does not exist");
+            return;
+        }
+    
+        try {
+            commands[command].command.apply(this, args);
+        } catch (e) {
+            errorMessage("Command not valid!<br />" + e);
+        }
+    }
+
+    /* Adds the given message to the messages div. The optional last argument
+     * lets you specify the message type; normal messages do not need a type.
+     */
+    function addMessage(text, username, type) {
         var messageDiv = $("<div>").addClass("message"),
             usernameDiv = $("<div>").addClass("username"),
             contentDiv = $("<div>").addClass("messageText");
+
+        if (type) {
+            messageDiv.addClass(type);
+        }
 
         contentDiv.append(text);
         usernameDiv.append(username);
@@ -63,6 +101,70 @@ function ChatInterface(url, options) {
         window.scrollBy(0, 10000);
         input.focus();
     }
+
+    /* Shows the specified error message to the user. */
+    function errorMessage(text) {
+        addMessage(text, "Error", "error");
+    }
+
+    commands = {
+        name : {
+            command : function () {
+                var newName = arguments[0];
+                for (var i = 1; i < arguments.length; i++) {
+                    newName += " " + arguments[i];
+                }
+                if (newName) {
+                    connection.setUsername(newName);
+                    statusBar.empty();
+                    statusBar.append("Username: " + newName);
+                } else {
+                    errorMessage("Please specify a new name.");
+                }
+            },
+            description : "Lets you change your name."
+        },
+        help : {
+            command : function () {
+                var message = $("<div>");
+
+                message.append($("<p>").html("Invoke commands by typing a " +
+                                             "slash followed by the command " +
+                                             "name and optionally space-" +
+                                             "delimitted arguments."));
+                message.append($("<p>").html("Commands:"));
+
+                for (command in commands) {
+                    if (commands.hasOwnProperty(command) &&
+                        commands[command].description) {
+                        var div = $("<div>");
+                        div.append($("<h1>").html(command).addClass("code"));
+                        div.append($("<p>")
+                                   .html(commands[command].description));
+                        message.append(div);
+                    }
+                }
+
+                addMessage(message, "Help", "info");
+            },
+            description : "Lists available commands."
+        },
+        id : {
+            command : function () {
+                addMessage(connection.getId(), "Connection ID:", "info");
+            },
+            description : "Lists your unique connection id."
+        },
+        about : {
+            command : function () {
+                addMessage("A simple chat program written by Tikhon Jelvis " +
+                           "using node.js, express.js and other nodejs " +
+                           "modules as well as jQuery client-side.", "About",
+                          "info");
+            },
+            description : "Prints information about this chat program."
+        }
+    };
 }
 
 $(function () {

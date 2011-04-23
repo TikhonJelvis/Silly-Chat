@@ -46,9 +46,37 @@ div.controls input {
 
 div.messages {
     overflow : hidden;
-    padding-bottom : 120px;
+    padding-bottom : 80px;
+}
+
+div.message {
+    margin-bottom : 4px;
 }
 
 div.message div.username {
     font-weight : bold;
+}
+
+div.message.error {
+    background-color : #F99;
+}
+
+div.message.error div.username{
+    color : red;
+}
+
+div.message.info {
+    background-color : @background;
+}
+
+div.message h1, div.message p{
+    font-size : @font-size;
+    margin-top : 0ex;
+    margin-bottom : 0ex;
+}
+
+.code {
+    font-weight : bold;
+    font-family : lucida console, monospace;
+    background-color : @background;
 }

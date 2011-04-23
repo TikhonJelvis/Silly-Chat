@@ -71,6 +71,26 @@ function ChatConnection(url, options) {
         });
     };
 
+    /* Changes the username to use when sending messages. */
+    this.setUsername = function (newUsername) {
+        username = newUsername;
+    };
+
+    /* Returns the current username. */
+    this.getUsername = function () {
+        return username;
+    };
+
+    /* Returns the unique connection id. */
+    this.getId = function () {
+        return id;
+    };
+
+    /* Returns the url of the chat server. */
+    this.getUrl = function () {
+        return url;
+    };
+
     /* The given function will be called with a change event whenever the state
      * of the message board changes.
      */
