@@ -41,6 +41,10 @@ function ChatInterface(url, options) {
         }
     });
 
+    // A simple welcome message:
+    addMessage("Enter &#92;help for a list of available commands",
+               "Welcome " + options.username, "info");
+
     /* Returns the chat interface's main element. */
     this.getElement = function () {
         return element;
@@ -162,10 +166,16 @@ function ChatInterface(url, options) {
         },
         about : {
             command : function () {
-                addMessage("A simple chat program written by Tikhon Jelvis " +
+                var message = $("<span>");
+                message.html("A simple chat program written by Tikhon Jelvis " +
                            "using node.js, express.js and other nodejs " +
-                           "modules as well as jQuery client-side.", "About",
-                          "info");
+                           "modules as well as jQuery client-side. Check it " +
+                           "out on ")
+                    .append($("<a>").attr("href", "http://www.github.com/" + 
+                                          "TikhonJelvis/Silly-Chat")
+                            .html("Github"))
+                    .append("!");
+                addMessage(message, "About", "info");
             },
             description : "Prints information about this chat program."
         }
