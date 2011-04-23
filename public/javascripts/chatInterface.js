@@ -147,7 +147,8 @@ function ChatInterface(url, options) {
                     if (commands.hasOwnProperty(command) &&
                         commands[command].description) {
                         var div = $("<div>");
-                        div.append($("<h1>").html(command).addClass("code"));
+                        div.append($("<h1>").html("\\" + command)
+                                   .addClass("code"));
                         div.append($("<p>")
                                    .html(commands[command].description));
                         message.append(div);
