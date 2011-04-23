@@ -56,7 +56,7 @@ function ChatInterface(url, options) {
 
     /* Determines if the given message is a command. Commands start with "/" */
     function isCommand(message) {
-        return /[\\\/].*/.test(message);
+        return /^[\\\/].*$/.test(message);
     }
 
     /* Executes the given command. If the command is not defined, nothing
