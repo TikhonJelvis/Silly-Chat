@@ -1,4 +1,6 @@
 function ChatInterface(url, options) {
+    var shownWelcome = false;//Have we shown the welcome message yet?
+    
     // Connection:
     var connection = new ChatConnection(url, options),
         commands = {};// All the valid commands.
@@ -38,12 +40,15 @@ function ChatInterface(url, options) {
             for (var i = 0; i < messages.length; i++) {
                 addMessage(messages[i].message, messages[i].username);
             }
+
+            if (!shownWelcome) {
+                // A simple welcome message:
+                addMessage("Enter &#92;help for a list of available commands",
+                           "Welcome " + options.username, "info");
+                shownWelcome = true;
+            }
         }
     });
-
-    // A simple welcome message:
-    addMessage("Enter &#92;help for a list of available commands",
-               "Welcome " + options.username, "info");
 
     /* Returns the chat interface's main element. */
     this.getElement = function () {
@@ -107,6 +112,7 @@ function ChatInterface(url, options) {
         messageDiv.append(usernameDiv).append(contentDiv);
 
         messages.append(messageDiv);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, messageDiv[0]]);
         window.scrollBy(0, 10000);
         input.focus();
     }
