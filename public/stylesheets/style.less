@@ -1,6 +1,9 @@
-@background : #90A9CB;
-@dark-background : #003399;
+@background : #FFFFFF;
 @font-size : 20pt;
+
+@code-background : #90A9CB;
+@controls-background : #90A9CB;
+@dark-background : #003399;
 
 body {
     padding : 0;
@@ -26,8 +29,16 @@ div.holder {
 }
 
 div.controls {
-    background-color : @background;
+    background-color : @controls-background;
     width : 100%;
+    z-index : 10;
+    input {
+        color : black;
+        border-width : 0px;
+        width : 100%;
+        background : @controls-background;
+        font-size : @font-size;
+    }
 }
 
 div.statusBar {
@@ -36,51 +47,50 @@ div.statusBar {
     background-color : @dark-background;
 }
 
-div.controls input {
-    color : black;
-    border-width : 0px;
-    width : 100%;
-    background : @background;
-    font-size : @font-size;
-}
-
 div.messages {
     overflow : hidden;
     padding-bottom : 80px;
 }
 
+.messageType (@background : white) {
+    background-color : @background;
+    .username {
+	background-color : darken(@background, 10%);
+    }    
+}
+
 div.message {
     margin-bottom : 4px;
-}
 
-div.message div.username {
-    font-weight : bold;
-}
+    a {
+	text-decoration : none;
+    }
 
-div.message.error {
-    background-color : #F99;
-}
+    h1, p {
+        font-size : @font-size;
+	margin-top : 0ex;
+	margin-bottom : 0ex;
+    }
 
-div.message.error div.username{
-    color : red;
-}
+    .username {
+        font-weight : bold;
+	background-color : darken(@background, 10%);
+    }
 
-div.message.info {
-    background-color : @background;
-}
+    &.error {
+	.messageType(#FF9999);
+	.username {
+	    color : red;
+	}
+    }
 
-div.message.info a {
-    text-decoration : none;
-}
-
-div.message h1, div.message p{
-    font-size : @font-size;
-    margin-top : 0ex;
-    margin-bottom : 0ex;
+    &.info {
+	.messageType(#90A9CB);
+    }
 }
 
 .code {
     font-weight : bold;
     font-family : lucida console, monospace;
-    background-color : @background;
+    background-color : @code-background;
 }
