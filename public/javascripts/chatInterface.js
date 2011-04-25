@@ -70,13 +70,14 @@ function ChatInterface(url, options) {
 
     /* Determines if the given message is a command. Commands start with "/" */
     function isCommand(message) {
-        return /^[\\\/].*$/.test(message);
+        return /^[\\\/][^[(].*$/.test(message);
     }
 
     /* Executes the given command. If the command is not defined, nothing
      * happens.
      */
     function execute(command) {
+        var message = command;
         command = command.replace(/^[\\\/]/, "");
         var args = command.split(" ");
         command = args.splice(0, 1)[0];
@@ -86,11 +87,15 @@ function ChatInterface(url, options) {
                          "</span> does not exist");
             return;
         }
-    
-        try {
-            commands[command].command.apply(this, args);
-        } catch (e) {
-            errorMessage("Command not valid!<br />" + e);
+
+        if (commands[command].command) {
+            try {
+                commands[command].command.apply(this, args);
+            } catch (e) {
+                errorMessage("Command not valid!<br />" + e);
+            }
+        } else {
+            connection.sendMessage(message);
         }
     }
 
@@ -185,6 +190,18 @@ function ChatInterface(url, options) {
                 addMessage(message, "About", "info");
             },
             description : "Prints information about this chat program."
+        },
+        "[" : {
+            description : "Starts \\(\\LaTeX\\) math display mode. Can be " +
+                "anywhere in the text. Should be closed with \\]. Can be used" +
+                " multiple times in one message as long as it is closed each " +
+                "time."
+        },
+        "(" : {
+            description :  "Starts \\(\\LaTeX\\) math inline mode. Can be " +
+                "anywhere in the text. Should be closed with \\]. Can be used" +
+                " multiple times in one message as long as it is closed each " +
+                "time."
         }
     };
 }
@@ -212,3 +229,4 @@ $(function () {
         //window.scrollBy(0, 10000000);
     }
 });
+
