@@ -133,7 +133,8 @@ function ChatConnection(url, options) {
             try {
                 observers[i](event);
             } catch (e) {
-                this.removeObserver(observers[i]);
+                console.error("Faulty observer", observers[i]);
+                console.error(e);
             }
         }
     }

@@ -66,12 +66,46 @@ function addMessage(message) {
 
     for (var connection in connections) {
         if (connections.hasOwnProperty(connection)) {
-            connections[connection].push(message);
+            connections[connection].addMessage(message);
         }
     }
 
     messages.push(message);
     writeMessage(message);
+}
+
+/* Represents a connection to a particular client. A set of messages to send may
+ * be provided.
+ */
+function Connection() {
+    var messageBuffer = [],// Any messages waiting to be sent.
+        response = null;// A response to be written to if a message is received.
+
+    console.log("Old message buffer: " + messageBuffer);
+    console.log("Messages: " + messages);
+    messageBuffer = messageBuffer.concat(messages);
+    console.log("Message buffer: " + messageBuffer);
+
+    /* Sends the given message to the given connection. */
+    this.addMessage = function (message) {
+        if (response) {
+            response.send({messages : [message]});
+            response = null;
+        } else {
+            messageBuffer.push(message);
+        }
+    };
+
+    /* Provides the response to use as soon as any new information comes in. */
+    this.provideResponse = function (newResponse) {
+        response = newResponse;
+
+        if (response && messageBuffer.length > 0) {
+            response.send({messages : messageBuffer});
+            response = null;
+            messageBuffer = [];
+        }
+    };
 }
 
 // Configuration
@@ -112,23 +146,10 @@ app.get("/chat/:id", function (req, res) {
     var id = req.params.id;
 
     if (!(id in connections)) {
-        connections[id] = messages;
-    }
-    
-    var connection = connections[id],
-        messagesToSend = [];
-
-    for (var i = 0; i < connection.length; i++) {
-        messagesToSend.push(connection[i]);
+        connections[id] = new Connection();
     }
 
-    connections[id] = [];
-
-    if (messagesToSend.length > 0) {
-        res.send({messages : messagesToSend});
-    } else {
-        res.send("");
-    }
+    connections[id].provideResponse(res);
 });
 
 app.post("/chat/:id", function (req, res) {

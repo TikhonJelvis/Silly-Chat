@@ -289,6 +289,8 @@ $(function () {
         startChat();
     });
 
+    prompt.focus();
+
     function startChat() {
         var username = prompt.val();
         $("body").empty();
