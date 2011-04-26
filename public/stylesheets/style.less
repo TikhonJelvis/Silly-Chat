@@ -5,6 +5,8 @@
 @controls-background : #90A9CB;
 @dark-background : #003399;
 
+@time-color : #AAAAAA;
+
 body {
     padding : 0;
     margin : 0;
@@ -71,10 +73,14 @@ div.message {
 	margin-top : 0ex;
 	margin-bottom : 0ex;
     }
-
+    
     .username {
         font-weight : bold;
 	background-color : darken(@background, 10%);
+	.time {
+	    color : @time-color;
+	    float : right;
+	}
     }
 
     &.error {

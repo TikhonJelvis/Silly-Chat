@@ -110,14 +110,21 @@ function ChatConnection(url, options) {
 
     /* Removes the specified observer from the list. If the observer is in the
      * list multiple times, removes every instance of it.
-     */
-    this.removeObserver = function (observer) {
+     */    
+    function removeObserver(observer) {
         for (var i = 0; i < observers.length; i++) {
             if (observer == observers[i]) {
                 observers.splice(i, 1);
                 i--;
             }
-        }
+        }        
+    }
+
+    /* Removes the specified observer from the list. If the observer is in the
+     * list multiple times, removes every instance of it.
+     */
+    this.removeObserver = function (observer) {
+        removeObserver(observer);
     };
 
     /* Notifies each of the observers of the given event. */

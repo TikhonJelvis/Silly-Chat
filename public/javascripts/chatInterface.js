@@ -56,7 +56,13 @@ function ChatInterface(url, options) {
             var messages = event.messages;
             
             for (var i = 0; i < messages.length; i++) {
-                addMessage(messages[i].message, messages[i].username);
+                var date = new Date(messages[i].time),
+                    timestamp = date.toLocaleTimeString() + "::" +
+                    date.toDateString();
+
+                timestamp = '<span class="time"> ' + timestamp + '</span>';
+                addMessage(messages[i].message, messages[i].username +
+                           timestamp);
             }
 
             welcome();
