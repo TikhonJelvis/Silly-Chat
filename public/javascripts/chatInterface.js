@@ -13,10 +13,28 @@ function ChatInterface(url, options) {
         statusBar = $("<div>").addClass("statusBar"),
         messages = $("<div>").addClass("messages");
 
-    $("body").keypress(function (event) {
-        if (event.keyCode == 13) {
+    // Sent messages and commands:
+    var sentCommands = [],
+        currentCommand = 0,// The command currently displayed. Reset each send().
+        commandsShifted = false;// Whether previous commands have been looked at.
+
+    $("body").keydown(function (event) {
+        switch (event.keyCode) {
+        case 13 :
             send();
+            break;
+        case 38 :
+            previousCommand();
+            break;
+        case 40 :
+            nextCommand();
+            break;
+        default :
+            // Do nothing!
+            break;
         }
+
+        return;
     });
 
     input.submit(send);
@@ -41,23 +59,67 @@ function ChatInterface(url, options) {
                 addMessage(messages[i].message, messages[i].username);
             }
 
-            if (!shownWelcome) {
-                // A simple welcome message:
-                addMessage("Enter &#92;help for a list of available commands",
-                           "Welcome " + options.username, "info");
-                shownWelcome = true;
-            }
+            welcome();
         }
     });
+    setTimeout(welcome, 200);
 
     /* Returns the chat interface's main element. */
     this.getElement = function () {
         return element;
     };
 
+    /* Focuses on the chat interface's main input. */
+    this.focus = function () {
+        input.focus();
+    };
+
+    /* Shows the welcome message. */
+    function welcome() {
+        if (!shownWelcome) {
+            // A simple welcome message:
+            addMessage("Enter &#92;help for a list of available commands",
+                       "Welcome " + options.username, "info");
+            shownWelcome = true;
+        }
+    }
+
+    /* Moves one back in the command history, as on pressing the up arrow. */
+    function previousCommand() {
+        if (sentCommands.length > 0) {
+            if (currentCommand === -1) {
+                currentCommand = 1;
+                sentCommands.unshift(input.val());
+            } else if (currentCommand >= sentCommands.length) {
+                currentCommand = 0;
+            }
+            
+            input.val(sentCommands[currentCommand]);
+            currentCommand++;
+
+            commandsShifted = true;
+        }
+    }
+
+    /* Moves one forward in the command history, as on pressing the down arrow.*/
+    function nextCommand() {
+        if (currentCommand > 1) {
+            currentCommand--;
+            input.val(sentCommands[currentCommand - 1]);
+        }
+    }
+
     /* Sends the message currently entered, clearing the input. */
     function send() {
         var message = input.val();
+
+        if (commandsShifted) {
+            sentCommands.shift();
+            commandsShifted = false;
+        }
+        
+        sentCommands.unshift(message);
+        currentCommand = -1;
 
         if (isCommand(message)) {
             execute(message);
@@ -226,7 +288,8 @@ $(function () {
         $("body").empty();
         chat = new ChatInterface("chat", {username : username});
         $("body").append(chat.getElement());
-        //window.scrollBy(0, 10000000);
+        window.scrollBy(0, 10000000);
+        chat.focus();
     }
 });
 
