@@ -49,9 +49,11 @@ function ChatInterface(url, options) {
     element.append(messages);
 
     connection.observe(function (event) {
+        console.log(event);
         if (event.error) {
-            var errorMessage = event.status + " <br /> " + event.message;
-            errorMessage(errorMessage);
+            var message = "Request failed. <br /> Status: " + event.status
+                + " <br /> Message: " + event.message;
+            errorMessage(message);
         } else {
             var messages = event.messages;
             

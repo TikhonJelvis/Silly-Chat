@@ -59,8 +59,12 @@ function ChatConnection(url, options) {
     }
 
     /* Sends an error message to all observers. */
-    function error(status, message) {
-        var event = {error : true, status : status, message : message};
+    function error(status, message, request) {
+        var event = {error : true,
+                     status : status,
+                     message : message,
+                     request : request
+                    };
         fire(event);
     }
 
@@ -73,10 +77,9 @@ function ChatConnection(url, options) {
             url : url + "/" + id,
             async : true,
             cache : false,
-            timeout : 50000,
             data : message,
             error : function (XMLHttpRequest, textStatus, errorThrown) {
-                error(textStatus, errorThrown);
+                error(textStatus, errorThrown, XMLHttpRequest);
             }
         });
     };
@@ -133,7 +136,9 @@ function ChatConnection(url, options) {
             try {
                 observers[i](event);
             } catch (e) {
-                console.error("Faulty observer", observers[i]);
+                console.error("Faulty observer:");
+                console.error(observers[i]);
+                console.log(observers);
                 console.error(e);
             }
         }
