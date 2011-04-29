@@ -12,106 +12,15 @@ if (process.argv && (process.argv.length) > 2 &&
  */
 
 var express = require('express'),
-    sanitizer = require('sanitizer'),
-    fs = require('fs');
+    chat = require('./chat');
 
-var app = module.exports = express.createServer();
-
-// Connections and messages:
-var connections = [],
-    messages = [],
-    nextId = 0;
-
-// The file to log to:
-var messageFile = "messages." + HOST,
-    messageFileStream = fs.createWriteStream(messageFile, {flags : "a"}),
-    messageFileBuffer = [];// Holds the messages that need to be written to file.
-
-// Recover any old messages then start writing to the messages file:
-fs.readFile(messageFile, "utf8", function (err, data) {
-    data = data.replace(/^,/, "");
-    data = '{"data" : [' + data + ']}';
-    console.log(data);
-    data = JSON.parse(data).data;
-    messages = data;
-    setTimeout(flushBuffer, 1000);
-});
-
-/* Writes all the messages in the file buffer to the messages file. */
-function flushBuffer() {
-    if (messageFileBuffer.length > 0) {
-        var toWrite = messageFileBuffer.join(",\n");
-        messageFileBuffer = [];
-        messageFileStream.write(",\n" + toWrite);
-    }
-    
-    setTimeout(flushBuffer, 1000);
-}
-
-/* Saves the given message to the message file. */
-function writeMessage(message) {
-    messageFileBuffer.push(JSON.stringify(message));
-}
-
-/* Adds the given message to all of the connection buffers and the main message
- * buffer, removing all unsafe html tags.
- */
-function addMessage(message) {
-    message.username = sanitizer.sanitize(message.username);
-    if (/^\s*$/.test(message.username)) {
-        message.username = "Anonymous";
-    }
-    message.message = sanitizer.sanitize(message.message);
-    message.time = new Date();
-
-    for (var connection in connections) {
-        if (connections.hasOwnProperty(connection)) {
-            connections[connection].addMessage(message);
-        }
-    }
-
-    messages.push(message);
-    writeMessage(message);
-}
-
-/* Represents a connection to a particular client. A set of messages to send may
- * be provided.
- */
-function Connection() {
-    var messageBuffer = [],// Any messages waiting to be sent.
-        response = null;// A response to be written to if a message is received.
-
-    console.log("Old message buffer: " + messageBuffer);
-    console.log("Messages: " + messages);
-    messageBuffer = messageBuffer.concat(messages);
-    console.log("Message buffer: " + messageBuffer);
-
-    /* Sends the given message to the given connection. */
-    this.addMessage = function (message) {
-        if (response) {
-            response.send({messages : [message]});
-            response = null;
-        } else {
-            messageBuffer.push(message);
-        }
-    };
-
-    /* Provides the response to use as soon as any new information comes in. */
-    this.provideResponse = function (newResponse) {
-        response = newResponse;
-
-        if (response && messageBuffer.length > 0) {
-            response.send({messages : messageBuffer});
-            response = null;
-            messageBuffer = [];
-        }
-    };
-}
+var app = module.exports = express.createServer(),
+    chatServer = chat.createServer(HOST);
 
 // Configuration
 
 app.configure(function () {
-    console.log(__dirname);
+    console .log(__dirname);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
     app.use(express.bodyParser());
@@ -138,25 +47,15 @@ app.get('/', function (req, res) {
 });
 
 app.get("/chat", function (req, res) {
-    res.send({id : nextId});
-    nextId++;
+    res.send({id : chatServer.nextId()});
 });
 
 app.get("/chat/:id", function (req, res) {
-    var id = req.params.id;
-
-    if (!(id in connections)) {
-        connections[id] = new Connection();
-    }
-
-    connections[id].provideResponse(res);
+    chatServer.provideResponse(req.params.id, res);
 });
 
 app.post("/chat/:id", function (req, res) {
-    var id = req.params.id,
-        message = req.body;
-    
-    addMessage(message);
+    chatServer.addMessage(req.body);
 });
 
 // Only listen on $ node app.js
