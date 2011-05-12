@@ -97,7 +97,7 @@
                 response = null,// The response to write to.
                 renewTimeout = null;
             
-            timeout = timeout || 500000;// The default timeout is five seconds.
+            timeout = timeout || 50000;// The default timeout is five seconds.
             
             messageBuffer = messageBuffer.concat(messages);
 
@@ -106,7 +106,7 @@
              */
             function renew() {
                 if (response) {
-                    resonse.send({messages : []});
+                    response.send({messages : []});
                     response = null;
                 }
             }
