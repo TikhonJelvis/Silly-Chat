@@ -36,7 +36,7 @@ function ChatConnection(url, options) {
             url : url + "/" + id,
             async : true,
             cache : false,
-            timeout : 600000,
+            timeout : 60000,
             success : function (data) {
                 if (data) {
                     addServerMessages(data.messages);
