@@ -65,7 +65,14 @@ function ChatInterface(url, options) {
             }
         } else {
             var messages = event.messages;
-            
+
+            // If there are more than the max number of elements, only load
+            // the maximum number.
+            if (messages.length > maxElements) {
+                var offset = messages.length - maxElements;
+                messages.splice(0, offset);
+            }
+
             for (var i = 0; i < messages.length; i++) {
                 var date = new Date(messages[i].time),
                     timestamp = date.toLocaleTimeString() + "::" +
