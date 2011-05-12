@@ -17,7 +17,6 @@ function ChatInterface(url, options) {
     // Element buffer, holds all of the message divs (even the ones that are not
     // displayed at the moment:
     var elementBuffer = [],
-        elementDisplayIndex = 0,// From which index to start displaying elements.
         maxElements = 50;// Maximum number of elements to display.
     
     // Sent messages and commands:
@@ -204,9 +203,9 @@ function ChatInterface(url, options) {
 
         elementBuffer.push(messageDiv);
 
-        if (elementBuffer.length - elementDisplayIndex > maxElements) {
-            elementBuffer[elementDisplayIndex].remove();
-            elementDisplayIndex++;
+        if (elementBuffer.length > maxElements) {
+            var element = elementBuffer.shift();
+            element.remove();
         }
 
         messages.append(messageDiv);
