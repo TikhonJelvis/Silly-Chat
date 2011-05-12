@@ -3,7 +3,8 @@ function ChatInterface(url, options) {
     
     // Connection:
     var connection = new ChatConnection(url, options),
-        commands = {};// All the valid commands.
+        commands = {},// All the valid commands.
+        errorMessages = false;// Show connection-related errors?
     
     // Elements:
     var element = $("<div>").addClass("chat"),
@@ -49,11 +50,13 @@ function ChatInterface(url, options) {
     element.append(messages);
 
     connection.observe(function (event) {
-        console.log(event);
         if (event.error) {
             var message = "Request failed. <br /> Status: " + event.status
-                + " <br /> Message: " + event.message;
-            errorMessage(message);
+                + " <br /> Message: " + event.message + " <br /> request: "
+                + event.request;
+            if (errorMessages) {
+                errorMessage(message);
+            }
         } else {
             var messages = event.messages;
             
@@ -260,6 +263,24 @@ function ChatInterface(url, options) {
                 addMessage(message, "About", "info");
             },
             description : "Prints information about this chat program."
+        },
+        errorsOn : {
+            command : function () {
+                errorMessages = true;
+                addMessage('Connection error messages <span class="code">' +
+                           'on.</span>', "Error Reporting", "info");
+            },
+            description : "Turns extra error messages on. If they're already on" +
+                " nothing happens."
+        },
+        errorsOff : {
+            command : function () {
+                errorMessages = false;
+                addMessage('Connection error messages <span class="code">' +
+                           'off.</span>', "Error Reporting", "info");
+            },
+            description : "Turns extra error messages off. If they're already " +
+                "off, nothing happens."
         },
         "[" : {
             description : "Starts \\(\\LaTeX\\) math display mode. Can be " +

@@ -22,7 +22,7 @@ function ChatConnection(url, options) {
                 pollServer();
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
-                error(textStatus, errorThrown);
+                error(textStatus, errorThrown, "Initial handshake");
             }
         });
     })();
@@ -36,7 +36,7 @@ function ChatConnection(url, options) {
             url : url + "/" + id,
             async : true,
             cache : false,
-            timeout : 50000,
+            timeout : 600000,
             success : function (data) {
                 if (data) {
                     addServerMessages(data.messages);
@@ -45,8 +45,8 @@ function ChatConnection(url, options) {
                 setTimeout(pollServer, 100);
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
-                error(textStatus, errorThrown);
-                setTimeout(pollServer, 5000);
+                error(textStatus, errorThrown, "GET message");
+                setTimeout(pollServer, 100);
             }
         });
     }
@@ -79,7 +79,7 @@ function ChatConnection(url, options) {
             cache : false,
             data : message,
             error : function (XMLHttpRequest, textStatus, errorThrown) {
-                error(textStatus, errorThrown, XMLHttpRequest);
+                error(textStatus, errorThrown, "Message POST");
             }
         });
     };
@@ -136,10 +136,12 @@ function ChatConnection(url, options) {
             try {
                 observers[i](event);
             } catch (e) {
-                console.error("Faulty observer:");
-                console.error(observers[i]);
-                console.log(observers);
-                console.error(e);
+                if (console) {
+                    console.error("Faulty observer:");
+                    console.error(observers[i]);
+                    console.log(observers);
+                    console.error(e);
+                }
             }
         }
     }
