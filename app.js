@@ -2,8 +2,7 @@
 var PORT = 3000,
     HOST = "127.0.0.1";
 
-if (process.argv && (process.argv.length) > 2 &&
-    /\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}/.test(process.argv[2])) {
+if (process.argv && (process.argv.length) > 2) {
     HOST = process.argv[2];
 }
 
@@ -56,6 +55,7 @@ app.get("/chat/:id", function (req, res) {
 
 app.post("/chat/:id", function (req, res) {
     chatServer.addMessage(req.body);
+    res.send("");
 });
 
 // Only listen on $ node app.js
