@@ -14,6 +14,12 @@ function ChatInterface(url, options) {
         statusBar = $("<div>").addClass("statusBar"),
         messages = $("<div>").addClass("messages");
 
+    // Element buffer, holds all of the message divs (even the ones that are not
+    // displayed at the moment:
+    var elementBuffer = [],
+        elementDisplayIndex = 0,// From which index to start displaying elements.
+        maxElements = 50;// Maximum number of elements to display.
+    
     // Sent messages and commands:
     var sentCommands = [],
         currentCommand = 0,// The command currently displayed. Reset each send().
@@ -188,6 +194,13 @@ function ChatInterface(url, options) {
         usernameDiv.append(username);
 
         messageDiv.append(usernameDiv).append(contentDiv);
+
+        elementBuffer.push(messageDiv);
+
+        if (elementBuffer.length - elementDisplayIndex > maxElements) {
+            elementBuffer[elementDisplayIndex].remove();
+            elementDisplayIndex++;
+        }
 
         messages.append(messageDiv);
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, messageDiv[0]]);
