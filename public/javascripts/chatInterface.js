@@ -1,6 +1,7 @@
 function ChatInterface(url, options) {
-    var shownWelcome = false;//Have we shown the welcome message yet?
-    
+    var shownWelcome = false,// Have we shown the welcome message yet?
+        effectsOn = false;// Effects will be turned on after the welcome message.
+
     // Connection:
     var connection = new ChatConnection(url, options),
         commands = {},// All the valid commands.
@@ -65,7 +66,7 @@ function ChatInterface(url, options) {
         } else {
             var messages = event.messages;
 
-            // If there are more than the max number of elements, only load
+            // If there is more than the max number of elements, only load
             // the maximum number.
             if (messages.length > maxElements) {
                 var offset = messages.length - maxElements;
@@ -104,6 +105,7 @@ function ChatInterface(url, options) {
             addMessage("Enter &#92;help for a list of available commands",
                        "Welcome " + options.username, "info");
             shownWelcome = true;
+            effectsOn = true;
         }
     }
 
@@ -164,6 +166,7 @@ function ChatInterface(url, options) {
     function execute(command) {
         var message = command;
         command = command.replace(/^[\\\/]/, "");
+        command = command.replace(/\s+/, " ");
         var args = command.split(" ");
         command = args.splice(0, 1)[0];
         
@@ -208,9 +211,13 @@ function ChatInterface(url, options) {
             element.remove();
         }
 
+        messageDiv.hide();
         messages.append(messageDiv);
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, messageDiv[0]]);
-        window.scrollBy(0, 10000);
+
+        effectsOn ? messageDiv.fadeIn("slow") : messageDiv.show();
+        setTimeout(function () { window.scrollBy(0, 10000);}, 100);
+        
         input.focus();
     }
 
@@ -237,27 +244,45 @@ function ChatInterface(url, options) {
             description : "Lets you change your name."
         },
         help : {
-            command : function () {
-                var message = $("<div>");
+            command : function (command) {
+                var message = $("<div>"),
+                    instructions = 'Commands are called using a slash ("/") or' +
+                    ' backslash ("\\"). LaTeX commands can only follow a ' +
+                    'backslash. An example would be: <span class="code">\\id' +
+                    '</span>. Type this to get your client id. Type ' +
+                    '<span class="code">\\help &lt;command&gt;</span> where ' +
+                    '<span class="code">&lt;command&gt;</span> is the command ' +
+                    'name to find out more about each command.',
+                commandList = $("<ul>");
 
-                message.append($("<p>").html("Invoke commands by typing a " +
-                                             "slash followed by the command " +
-                                             "name and optionally space-" +
-                                             "delimitted arguments."));
-                message.append($("<p>").html("Commands:"));
-
-                for (command in commands) {
-                    if (commands.hasOwnProperty(command) &&
-                        commands[command].description) {
-                        var div = $("<div>");
-                        div.append($("<h1>").html("\\" + command)
-                                   .addClass("code"));
-                        div.append($("<p>")
-                                   .html(commands[command].description));
-                        message.append(div);
+                if (command) {
+                    command = command.replace(/^[\/\\]/, "");
+                    if (!commands[command]) {
+                        addMessage('Command <span class="code">' + command +
+                                   ' </span> does not exist.', 'Help', 'info');
+                        return;
+                    } else {
+                        message.append($("<h1>").html(command).addClass("code"));
+                        message.append($("<p>")
+                                       .html(commands[command].description));
                     }
-                }
+                } else {
+                    message.append($("<p>").html(instructions));
+                    message.append($("<h1>").html("All Commands:")
+                                   .addClass("code"));
 
+                    for (var commandName in commands) {
+                        if (commands.hasOwnProperty(commandName) &&
+                            commands[commandName].description) {
+                            var item = $("<li>");
+                            item.append($("<h1>").html(commandName)
+                                        .addClass("code"));
+                            commandList.append(item);
+                        }
+                    }
+
+                    message.append(commandList);
+                }
                 addMessage(message, "Help", "info");
             },
             description : "Lists available commands."
@@ -289,8 +314,8 @@ function ChatInterface(url, options) {
                 addMessage('Connection error messages <span class="code">' +
                            'on.</span>', "Error Reporting", "info");
             },
-            description : "Turns extra error messages on. If they're already on" +
-                " nothing happens."
+            description : "Turns extra error messages on. If they're already on"
+                + " nothing happens."
         },
         errorsOff : {
             command : function () {
@@ -301,17 +326,34 @@ function ChatInterface(url, options) {
             description : "Turns extra error messages off. If they're already " +
                 "off, nothing happens."
         },
+        effectsOn : {
+            command : function () {
+                effectsOn = true;
+                addMessage('Pretty JavaScript effects <span class="code">' +
+                           'on.</span>', "JavaScript Effects", "info");
+            },
+            description : "Turns on effects like a fade-in for new messages."
+        },
+        effectsOff : {
+            command : function () {
+                effectsOn = false;
+                addMessage('Pretty JavaScript effects <span class="code">' +
+                           'off.</span>', "JavaScript Effects", "info");
+            },
+            description : "Turns off all fancy JavaScript effects. This may be" +
+                " good for slower computers."
+        },
         "[" : {
             description : "Starts \\(\\LaTeX\\) math display mode. Can be " +
                 "anywhere in the text. Should be closed with \\]. Can be used" +
                 " multiple times in one message as long as it is closed each " +
-                "time."
+                "time. This has to be used with a backslash (\"\\\")!"
         },
         "(" : {
             description :  "Starts \\(\\LaTeX\\) math inline mode. Can be " +
-                "anywhere in the text. Should be closed with \\]. Can be used" +
+                "anywhere in the text. Should be closed with \\). Can be used" +
                 " multiple times in one message as long as it is closed each " +
-                "time."
+                "time. This has to be used with a backslash (\"\\\")!"
         }
     };
 }
