@@ -29,7 +29,10 @@
 
         // Recover any old messages then start writing to the messages file:
         fs.readFile(messageFile, "utf8", function (err, data) {
-            data = data.replace(/^,/, "");
+            if (data) {
+                data = data.replace(/^,/, "");
+            }
+            
             data = '{"data" : [' + data + ']}';
             messages = JSON.parse(data).data;
             setTimeout(flushBuffer, 1000);
@@ -97,7 +100,7 @@
                 response = null,// The response to write to.
                 renewTimeout = null;
             
-            timeout = timeout || 50000;// The default timeout is five seconds.
+            timeout = timeout || 50000;// The default timeout is fifty seconds.
             
             messageBuffer = messageBuffer.concat(messages);
 
