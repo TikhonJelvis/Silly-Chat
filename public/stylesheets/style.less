@@ -33,7 +33,7 @@ div.holder {
 div.controls {
     background-color : @controls-background;
     width : 100%;
-    z-index : 10;
+    z-index : 100;
     input {
         color : black;
         border-width : 0px;
@@ -82,9 +82,15 @@ div.message {
     .username {
         font-weight : bold;
 	background-color : darken(@background, 10%);
+
 	.time {
 	    color : @time-color;
 	    float : right;
+	}
+
+	img {
+	    margin : 0px;
+	    margin-bottom : -7px;
 	}
     }
 

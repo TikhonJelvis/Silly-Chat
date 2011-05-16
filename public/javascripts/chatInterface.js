@@ -188,20 +188,30 @@ function ChatInterface(url, options) {
     }
 
     /* Adds the given message to the messages div. The optional last argument
-     * lets you specify the message type; normal messages do not need a type.
+     * lets you specify the message type; normal messages do not need a type. If
+     * a message has no type--that is, it is a normal message--then an avatar
+     * will be generated for it.
      */
     function addMessage(text, username, type) {
         var messageDiv = $("<div>").addClass("message"),
             usernameDiv = $("<div>").addClass("username"),
-            contentDiv = $("<div>").addClass("messageText");
+            contentDiv = $("<div>").addClass("messageText"),
+            avatar = $("<img>"),
+            actualName = username.replace(/<span.*<\/span>$/, ""),
+            hash;
 
         if (type) {
+            console.log(type);
             messageDiv.addClass(type);
+        } else {
+            hash = hex_md5(actualName);
+            avatar.attr("src", "http://unicornify.appspot.com/avatar/" + hash);
+            usernameDiv.append(avatar);
         }
 
         contentDiv.append(text);
-        usernameDiv.append(username);
 
+        usernameDiv.append(username);
         messageDiv.append(usernameDiv).append(contentDiv);
 
         elementBuffer.push(messageDiv);
