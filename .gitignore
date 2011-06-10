@@ -1,0 +1,4 @@
+# Ignore emacs backup files:
+*~
+# Ignore messages files created by the server:
+messages.*

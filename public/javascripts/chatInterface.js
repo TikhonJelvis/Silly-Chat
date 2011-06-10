@@ -1,3 +1,12 @@
+/**
+ * Creates a new chat interface which lets you talk using my chat server (or
+ * even a different server that exposes the same api).
+ *
+ * @constructor
+ * @param {String} url the url of the server this interface will be connected
+ *  to.
+ * @param options some configuration options for the interface.
+ */
 function ChatInterface(url, options) {
     var shownWelcome = false,// Have we shown the welcome message yet?
         effectsOn = false;// Effects will be turned on after the welcome message.
@@ -88,17 +97,32 @@ function ChatInterface(url, options) {
     });
     setTimeout(welcome, 200);
 
-    /* Returns the chat interface's main element. */
+    /**
+     * Returns the chat interface's main element.
+     *
+     * @function
+     * @memberOf ChatInterface
+     * @return {jQuery Element} the div containing the entire chat interface.
+     */
     this.getElement = function () {
         return element;
     };
 
-    /* Focuses on the chat interface's main input. */
+    /**
+     * Focuses on the chat interface's main input.
+     *
+     * @function
+     * @memberOf ChatInterface
+     */
     this.focus = function () {
         input.focus();
     };
 
-    /* Shows the welcome message. */
+    /**
+     * Shows the welcome message.
+     *
+     * @function
+     */
     function welcome() {
         if (!shownWelcome) {
             // A simple welcome message:
@@ -109,7 +133,11 @@ function ChatInterface(url, options) {
         }
     }
 
-    /* Moves one back in the command history, as on pressing the up arrow. */
+    /**
+     * Moves one back in the command history, as on pressing the up arrow.
+     *
+     * @function
+     */
     function previousCommand() {
         if (sentCommands.length > 0) {
             if (currentCommand === -1) {
@@ -126,7 +154,11 @@ function ChatInterface(url, options) {
         }
     }
 
-    /* Moves one forward in the command history, as on pressing the down arrow.*/
+    /**
+     * Moves one forward in the command history, as on pressing the down arrow.
+     *
+     * @function
+     */
     function nextCommand() {
         if (currentCommand > 1) {
             currentCommand--;
@@ -134,7 +166,11 @@ function ChatInterface(url, options) {
         }
     }
 
-    /* Sends the message currently entered, clearing the input. */
+    /**
+     * Sends the message currently entered, clearing the input.
+     *
+     * @function
+     */
     function send() {
         var message = input.val();
 
@@ -155,13 +191,26 @@ function ChatInterface(url, options) {
         input.val("");
     }
 
-    /* Determines if the given message is a command. Commands start with "/" */
+    /**
+     * Determines if the given message is a command. Commands start with "/" or
+     * "\".
+     *
+     * @function
+     * @param {String} message the message to check.
+     * @return {Boolean} whether the given message is a command or not.
+     */
     function isCommand(message) {
         return /^[\\\/][^[(].*$/.test(message);
     }
 
-    /* Executes the given command. If the command is not defined, nothing
+    /**
+     * Executes the given command. If the command is not defined, nothing
      * happens.
+     *
+     * @function
+     * @param {String} command the command to execute. This should include both
+     *  the name of the command (the slash is not necessary, but allowed) and
+     *  the arguments passed to it.
      */
     function execute(command) {
         var message = command;
@@ -187,10 +236,21 @@ function ChatInterface(url, options) {
         }
     }
 
-    /* Adds the given message to the messages div. The optional last argument
+    /**
+     * Adds the given message to the messages div. The optional last argument
      * lets you specify the message type; normal messages do not need a type. If
      * a message has no type--that is, it is a normal message--then an avatar
      * will be generated for it.
+     *
+     * @function
+     * @param {Element|String} text the text of the message to add.
+     * @param {Element|String} username what to display in the username portion
+     *  of the message. This does not have to be a valid username--it can be
+     *  anything.
+     * @param {String} type the type of message this is. This type should
+     *  correspond to one of the css classes defined for messages. If it fails
+     *  to correspond to a css class, the message will still be added but it
+     *  will look normal (although without a timestamp).
      */
     function addMessage(text, username, type) {
         var messageDiv = $("<div>").addClass("message"),
@@ -231,11 +291,17 @@ function ChatInterface(url, options) {
         input.focus();
     }
 
-    /* Shows the specified error message to the user. */
+    /**
+     * Shows the specified error message to the user.
+     *
+     * @function
+     * @param {Element|String} text the error message to show.
+     */
     function errorMessage(text) {
         addMessage(text, "Error", "error");
     }
 
+    // These are all of the valid commands:
     commands = {
         name : {
             command : function () {
