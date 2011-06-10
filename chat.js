@@ -81,14 +81,16 @@
          * @function
          * @memberOf Server
          * @param {Message} message the message to add to this server.
+         * @param {int} id the id of the user that submitted the message.
          */
-        this.addMessage = function (message) {
+        this.addMessage = function (message, id) {
             message.username = sanitizer.sanitize(message.username);
             if (/^\s*$/.test(message.username)) {
                 message.username = "Anonymous";
             }
             message.message = sanitizer.sanitize(message.message);
             message.time = new Date();
+            message.id = id;
 
             for (var connection in connections) {
                 if (connections.hasOwnProperty(connection)) {

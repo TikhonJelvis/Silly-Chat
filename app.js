@@ -54,7 +54,7 @@ app.get("/chat/:id", function (req, res) {
 });
 
 app.post("/chat/:id", function (req, res) {
-    chatServer.addMessage(req.body);
+    chatServer.addMessage(req.body, req.params.id);
     res.send("");
 });
 

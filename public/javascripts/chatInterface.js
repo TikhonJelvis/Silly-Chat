@@ -1,5 +1,5 @@
 /**
- * Creates a new chat interface which lets you talk using my chat server (or
+nn * Creates a new chat interface which lets you talk using my chat server (or
  * even a different server that exposes the same api).
  *
  * @constructor
@@ -10,6 +10,8 @@
 function ChatInterface(url, options) {
     var shownWelcome = false,// Have we shown the welcome message yet?
         effectsOn = false;// Effects will be turned on after the welcome message.
+
+    var username = "";
 
     // Connection:
     var connection = new ChatConnection(url, options),
@@ -56,6 +58,7 @@ function ChatInterface(url, options) {
     input.submit(send);
     controls.append(input);
 
+    username = options.username;
     statusBar.append("Username: " + options.username);
 
     holder.append(statusBar);
@@ -75,6 +78,14 @@ function ChatInterface(url, options) {
         } else {
             var messages = event.messages;
 
+            // Filter the messages to not add message sent from this interface:
+            for (var i = 0; i < messages.length; i++) {
+                if (messages[i].id == connection.getId()) {
+                    messages.splice(i, 1);
+                    i--;
+                }
+            }
+
             // If there is more than the max number of elements, only load
             // the maximum number.
             if (messages.length > maxElements) {
@@ -82,7 +93,7 @@ function ChatInterface(url, options) {
                 messages.splice(0, offset);
             }
 
-            for (var i = 0; i < messages.length; i++) {
+            for (i = 0; i < messages.length; i++) {
                 var date = new Date(messages[i].time),
                     timestamp = date.toLocaleTimeString() + "::" +
                     date.toDateString();
@@ -185,6 +196,12 @@ function ChatInterface(url, options) {
         if (isCommand(message)) {
             execute(message);
         } else if (message) {
+            var date = new Date(),
+                timestamp = date.toLocaleTimeString() + "::" +
+                    date.toDateString();
+            timestamp = '<span class="time"> ' + timestamp + '</span>';
+
+            addMessage(message, username + timestamp);
             connection.sendMessage(message);
         }
         
@@ -313,6 +330,7 @@ function ChatInterface(url, options) {
                     connection.setUsername(newName);
                     statusBar.empty();
                     statusBar.append("Username: " + newName);
+                    username = newName;
                 } else {
                     errorMessage("Please specify a new name.");
                 }
