@@ -1,6 +1,13 @@
 div#prompt
-    p Please choose a username.
-    label(for="username") Name:
-    input#username(type="text")
-    button#go Go
-    
+    div#username-entry
+        p Please choose a username.
+        label(for="username") Name:
+        input#username(type="text")
+        button#go Go
+    div#email-entry
+        label#email-label(for="email") Email:
+        input#email(type="text")    
+        p.small Optional: enter an email address. This will 
+            em only 
+            be used for gravatar, and will not even be sent to the server.
+

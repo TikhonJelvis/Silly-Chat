@@ -10,11 +10,12 @@
  */
 function ChatConnection(url, options) {
     options = options || {};
-    var username = options.username || "Anonymous";
+    var username = options.username || "Anonymous",
+        gravatar = options.gravatar;
 
     var receivedMessages = [],
-    observers = [],
-    id = "";// A unique id assigned by the server.
+        observers = [],
+        id = "";// A unique id assigned by the server.
 
     (function connect() {
         $.ajax({
@@ -69,6 +70,7 @@ function ChatConnection(url, options) {
     function addServerMessages(messages) {
         var event = {messages : messages};
         receivedMessages.concat(messages);
+        
         fire(event);
     }
 
@@ -81,13 +83,12 @@ function ChatConnection(url, options) {
      * @param {jqXHR} request the request that led to the error.
      */
     function error(status, message, request) {
-        var event = {
+        fire({
             error : true,
             status : status,
             message : message,
             request : request
-        };
-        fire(event);
+        });
     }
 
     /**
@@ -98,7 +99,11 @@ function ChatConnection(url, options) {
      * @param {Message} message the message to send to the server.
      */
     this.sendMessage = function (message) {
-        message = {message : message, username : username};
+        message = {
+            message : message,
+            username : username,
+            gravatar : gravatar
+        };
 
         $.ajax({
             type : "POST",
@@ -132,6 +137,51 @@ function ChatConnection(url, options) {
      */
     this.getUsername = function () {
         return username;
+    };
+
+    /**
+     * Sets the gravatar hash to the md5 hash of the given email address. The
+     * actual address is never saved.
+     *
+     * @function
+     * @memberOf ChatConnection
+     * @param {String} email the email address to hash. It is never saved and the
+     *  hashing is done locally. If this string is empty, null, all whitespace or
+     *  otherwise valueless, the username will be used to get the hash for the
+     *  gravatar.
+     */
+    this.setEmail = function (email) {
+        if (!(email || email.trim())) {
+            gravatar = hex_md5(username);
+        } else {
+            gravatar = hex_md5(email.trim().toLowerCase());
+        }
+    };
+
+    /**
+     * Sets the actual md5 hash used to get the gravatar.
+     *
+     * @function
+     * @memberOf ChatConnection
+     * @param {String} hash the actual hash to send to gravatar. This does not
+     *  really have to be a hash of anything--for unknown values, gravatar will
+     *  return an identicon. However, to get a particular picture, a hash of an
+     *  email address is needed.
+     */
+    this.setHash = function (hash) {
+        gravatar = hash;
+    };
+
+    /**
+     * Returns the hash currently being used to get gravatars.
+     *
+     * @function
+     * @memberOf ChatConnection
+     * @return {String} the hash currently being sent to gravatar to get the
+     *  appropriate picture.
+     */
+    this.getHash = function () {
+        return gravatar;
     };
 
     /**

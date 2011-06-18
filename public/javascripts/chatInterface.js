@@ -1,5 +1,5 @@
 /**
-nn * Creates a new chat interface which lets you talk using my chat server (or
+ * Creates a new chat interface which lets you talk using my chat server (or
  * even a different server that exposes the same api).
  *
  * @constructor
@@ -8,10 +8,13 @@ nn * Creates a new chat interface which lets you talk using my chat server (or
  * @param options some configuration options for the interface.
  */
 function ChatInterface(url, options) {
+    options = options || {};
+
     var shownWelcome = false,// Have we shown the welcome message yet?
         effectsOn = false;// Effects will be turned on after the welcome message.
 
-    var username = "";
+    var username = options.username || "",
+        gravatar = options.gravatar;
 
     // Connection:
     var connection = new ChatConnection(url, options),
@@ -99,8 +102,10 @@ function ChatInterface(url, options) {
                     date.toDateString();
 
                 timestamp = '<span class="time"> ' + timestamp + '</span>';
-                addMessage(messages[i].message, messages[i].username +
-                           timestamp);
+                addMessage(messages[i].message, {
+                    name : messages[i].username + timestamp,
+                    gravatar : messages[i].gravatar
+                });
             }
 
             welcome();
@@ -201,7 +206,10 @@ function ChatInterface(url, options) {
                     date.toDateString();
             timestamp = '<span class="time"> ' + timestamp + '</span>';
 
-            addMessage(message, username + timestamp);
+            addMessage(message, {
+                name : username + timestamp,
+                gravatar : gravatar
+            });
             connection.sendMessage(message);
         }
         
@@ -261,28 +269,35 @@ function ChatInterface(url, options) {
      *
      * @function
      * @param {Element|String} text the text of the message to add.
-     * @param {Element|String} username what to display in the username portion
-     *  of the message. This does not have to be a valid username--it can be
-     *  anything.
+     * @param user an object describing the user that posted the post which MUST
+     *  include a name and CAN include a gravatar hash. If there is no hash, the
+     *  user can just be a string which will be the username.
      * @param {String} type the type of message this is. This type should
      *  correspond to one of the css classes defined for messages. If it fails
      *  to correspond to a css class, the message will still be added but it
      *  will look normal (although without a timestamp).
      */
-    function addMessage(text, username, type) {
-        var messageDiv = $("<div>").addClass("message"),
+    function addMessage(text, user, type) {
+        if (typeof user == "string") {
+            user = {
+                name : user
+            };
+        }
+
+        var username = user.name,
+            hash = user.gravatar,
+            messageDiv = $("<div>").addClass("message"),
             usernameDiv = $("<div>").addClass("username"),
             contentDiv = $("<div>").addClass("messageText"),
             avatar = $("<img>"),
-            actualName = username.replace(/<span.*<\/span>$/, ""),
-            hash;
+            actualName = username.replace(/<span.*<\/span>$/, "");
 
         if (type) {
-            console.log(type);
             messageDiv.addClass(type);
         } else {
-            hash = hex_md5(actualName);
-            avatar.attr("src", "http://unicornify.appspot.com/avatar/" + hash);
+            hash = hash || hex_md5(actualName);
+            avatar.attr("src", "http://www.gravatar.com/avatar/" + hash +
+                        "?d=identicon&s=32");
             usernameDiv.append(avatar);
         }
 
@@ -336,6 +351,17 @@ function ChatInterface(url, options) {
                 }
             },
             description : "Lets you change your name."
+        },
+        email : {
+            command : function (email) {
+                connection.setEmail(email);
+                gravatar = connection.getHash();
+                addMessage('Set your email to: <span class="code">' + email +
+                           '</span>', "Info", "info");
+            },
+            description : "Sets the email address that is used to get your " +
+                "gravatar. This is never sent to the server--only its md5 " +
+                "hash ever leaves your browser."
         },
         help : {
             command : function (command) {
@@ -453,8 +479,9 @@ function ChatInterface(url, options) {
 }
 
 $(function () {
-    var prompt = $("#prompt input"),
+    var prompt = $("#username"),
         button = $("#go"),
+        emailPrompt = $("#email"),
         chat = null;
 
     prompt.keypress(function (event) {
@@ -470,9 +497,15 @@ $(function () {
     prompt.focus();
 
     function startChat() {
-        var username = prompt.val();
+        var username = prompt.val(),
+            email = emailPrompt.val().trim().toLowerCase(),
+            gravatar = email ? hex_md5(email) : null;
+
         $("body").empty();
-        chat = new ChatInterface("chat", {username : username});
+        chat = new ChatInterface("chat", {
+            username : username,
+            gravatar : gravatar
+        });
         $("body").append(chat.getElement());
         window.scrollBy(0, 10000000);
         chat.focus();

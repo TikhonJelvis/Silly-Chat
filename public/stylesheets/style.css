@@ -1,0 +1,93 @@
+body {
+  padding: 0;
+  margin: 0;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: white;
+  font-size: 20pt;
+  color: black;
+}
+p.small {
+  font-size : 14px;
+}
+label#email-label {
+  margin-right : 4px;
+}
+div.chat {
+  height: 100%;
+}
+div#prompt {
+  margin: 30px;
+}
+div.holder {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+div.controls {
+  background-color: #90a9cb;
+  width: 100%;
+  z-index: 100;
+}
+div.controls input {
+  color: black;
+  border-width: 0px;
+  width: 100%;
+  background: #90a9cb;
+  font-size: 20pt;
+}
+div.statusBar {
+  width: 100%;
+  color: white;
+  background-color: #003399;
+}
+div.messages {
+  overflow: hidden;
+  padding-bottom: 80px;
+}
+div.message {
+  margin-bottom: 4px;
+}
+div.message a {
+  text-decoration: none;
+}
+div.message h1, div.message p {
+  font-size: 20pt;
+  margin-top: 0ex;
+  margin-bottom: 0ex;
+}
+div.message ul, div.message ol {
+  margin-top: 0ex;
+  margin-bottom: 0ex;
+}
+div.message .username {
+  font-weight: bold;
+  background-color: #e6e6e6;
+}
+div.message .username .time {
+  color: #aaaaaa;
+  float: right;
+}
+div.message .username img {
+  margin: 0px;
+  margin-bottom: -7px;
+}
+div.message.error {
+  background-color: #ff9999;
+}
+div.message.error .username {
+  background-color: #ff6666;
+}
+div.message.error .username {
+  color: red;
+}
+div.message.info {
+  background-color: #90a9cb;
+}
+div.message.info .username {
+  background-color: #6d8ebb;
+}
+.code {
+  font-weight: bold;
+  font-family: lucida console, monospace;
+  background-color: #90a9cb;
+}
